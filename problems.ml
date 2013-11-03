@@ -169,3 +169,122 @@ assert(encode3 ["a";"a";"a";"a";"b";"c";"c";"a";"a";"d";"e";"e";"e";"e"] =
        [Many (4, "a"); One "b"; Many (2, "c"); Many (2, "a"); One "d";
         Many (4, "e")]);;
 
+
+let duplicate l =
+  let rec aux l a =
+    match l with
+      | [] -> a
+      | h :: t -> aux t (h :: (h :: a))
+  in
+  let result = aux l [] in
+    List.rev result;;
+
+duplicate ["a"; "b"; "c"; "c"; "d"];;
+
+let replicate l n =
+  let rec repeat x n a l =
+    if a = n then l else repeat x n (a+1) (x :: l)
+  in
+
+  let rec aux l a =
+    match l with
+      | [] -> a
+      | h :: t -> aux t ((repeat h n 0 []) @ a)
+  in
+  let result = aux l [] in
+    List.rev result;;
+
+replicate ["a";"b";"c"] 3;;
+
+let drop_nth l n =
+  let rec aux l c a =
+    match l with
+      | [] -> a
+      | h :: t -> if c = n then aux t 1 a else aux t (c+1) (h :: a)
+  in
+  let result = aux l 1 [] in
+    List.rev result;;
+
+drop_nth ["a";"b";"c";"d";"e";"f";"g";"h";"i";"j"] 3;;
+
+let split l n =
+  let rec aux l c a b=
+    match l with
+      | [] -> (a, b)
+      | h :: t -> if c < n then aux t (c+1) (h :: a) b else aux t (c+1) a (h :: b)
+  in
+  let (a, b) = aux l 0 [] [] in
+    (List.rev a, List.rev b);;
+
+split ["a";"b";"c";"d";"e";"f";"g";"h";"i";"j"] 3;;
+
+let slice l i k =
+  let rec aux l c a =
+    match l with
+      | [] -> a
+      | h :: t -> if (c >= i) && (c <= k) then aux t (c+1) (h :: a) else aux t (c+1) a
+  in
+  let result = aux l 0 [] in
+    List.rev result;;
+
+slice ["a";"b";"c";"d";"e";"f";"g";"h";"i";"j"] 2 6;;
+
+let rotate l n =
+  (* adjusted n *)
+  let m = if n < 0 then (List.length l) + n else n in
+  let rec aux l c a =
+    match l with
+      | [] -> a
+      | h :: t -> if c < m then aux t (c+1) (List.tl a @ [h]) else aux t (c+1) a
+  in
+  let result = aux l 0 l in
+    result;;
+
+rotate ["a"; "b"; "c"; "d"; "e"; "f"; "g"; "h"] 3;;
+
+rotate ["a"; "b"; "c"; "d"; "e"; "f"; "g"; "h"] (-2);;
+
+let remove_at k l =
+  let rec aux l c a =
+    match l with
+      | [] -> a
+      | h :: t -> if c = k then aux t (c+1) a else aux t (c+1) (h :: a)
+  in
+  let result = aux l 0 [] in
+    List.rev result;;
+
+remove_at 1 ["a";"b";"c";"d"];;
+
+let insert_at e k l =
+  let rec aux l c a =
+    match l with
+      | [] -> a
+      | h :: t -> if c = k then aux t (c+1) (h :: (e :: a)) else aux t (c+1) (h :: a)
+  in
+  let result = aux l 0 [] in
+    List.rev result;;
+
+insert_at "alfa" 1 ["a";"b";"c";"d"];;
+
+let range a b =
+  let step = let d = a - b in
+      match d with
+        | 0 -> 0
+        | _ -> if d < 0 then 1 else -1
+  in
+  let rec aux c acc =
+    if c = b then c :: acc else aux (c + step) (c :: acc)
+  in
+  let result = aux a [] in
+    List.rev result;;
+
+range 4 9;;
+range 9 4;;
+
+
+
+
+
+
+
+
