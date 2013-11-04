@@ -179,7 +179,8 @@ let duplicate l =
   let result = aux l [] in
     List.rev result;;
 
-duplicate ["a"; "b"; "c"; "c"; "d"];;
+assert(duplicate ["a"; "b"; "c"; "c"; "d"] =
+       ["a"; "a"; "b"; "b"; "c"; "c"; "c"; "c"; "d"; "d"]);;
 
 let replicate l n =
   let rec repeat x n a l =
@@ -194,9 +195,9 @@ let replicate l n =
   let result = aux l [] in
     List.rev result;;
 
-replicate ["a";"b";"c"] 3;;
+assert(replicate ["a";"b";"c"] 3 = ["a"; "a"; "a"; "b"; "b"; "b"; "c"; "c"; "c"]);;
 
-let drop_nth l n =
+let drop l n =
   let rec aux l c a =
     match l with
       | [] -> a
@@ -205,7 +206,8 @@ let drop_nth l n =
   let result = aux l 1 [] in
     List.rev result;;
 
-drop_nth ["a";"b";"c";"d";"e";"f";"g";"h";"i";"j"] 3;;
+assert(drop ["a";"b";"c";"d";"e";"f";"g";"h";"i";"j"] 3 =
+       ["a"; "b"; "d"; "e"; "g"; "h"; "j"]);;
 
 let split l n =
   let rec aux l c a b=
@@ -216,7 +218,8 @@ let split l n =
   let (a, b) = aux l 0 [] [] in
     (List.rev a, List.rev b);;
 
-split ["a";"b";"c";"d";"e";"f";"g";"h";"i";"j"] 3;;
+assert(split ["a";"b";"c";"d";"e";"f";"g";"h";"i";"j"] 3 =
+       (["a"; "b"; "c"], ["d"; "e"; "f"; "g"; "h"; "i"; "j"]));;
 
 let slice l i k =
   let rec aux l c a =
@@ -227,7 +230,8 @@ let slice l i k =
   let result = aux l 0 [] in
     List.rev result;;
 
-slice ["a";"b";"c";"d";"e";"f";"g";"h";"i";"j"] 2 6;;
+assert(slice ["a";"b";"c";"d";"e";"f";"g";"h";"i";"j"] 2 6 =
+       ["c"; "d"; "e"; "f"; "g"]);;
 
 let rotate l n =
   (* adjusted n *)
@@ -240,9 +244,11 @@ let rotate l n =
   let result = aux l 0 l in
     result;;
 
-rotate ["a"; "b"; "c"; "d"; "e"; "f"; "g"; "h"] 3;;
+assert(rotate ["a"; "b"; "c"; "d"; "e"; "f"; "g"; "h"] 3 =
+       ["d"; "e"; "f"; "g"; "h"; "a"; "b"; "c"]);;
 
-rotate ["a"; "b"; "c"; "d"; "e"; "f"; "g"; "h"] (-2);;
+assert(rotate ["a"; "b"; "c"; "d"; "e"; "f"; "g"; "h"] (-2) =
+       ["g"; "h"; "a"; "b"; "c"; "d"; "e"; "f"]);;
 
 let remove_at k l =
   let rec aux l c a =
@@ -253,7 +259,7 @@ let remove_at k l =
   let result = aux l 0 [] in
     List.rev result;;
 
-remove_at 1 ["a";"b";"c";"d"];;
+assert(remove_at 1 ["a";"b";"c";"d"] = ["a"; "c"; "d"]);;
 
 let insert_at e k l =
   let rec aux l c a =
@@ -264,7 +270,8 @@ let insert_at e k l =
   let result = aux l 0 [] in
     List.rev result;;
 
-insert_at "alfa" 1 ["a";"b";"c";"d"];;
+assert(insert_at "alfa" 1 ["a";"b";"c";"d"] =
+       ["a"; "alfa"; "b"; "c"; "d"]);;
 
 let range a b =
   let step = let d = a - b in
@@ -278,13 +285,54 @@ let range a b =
   let result = aux a [] in
     List.rev result;;
 
-range 4 9;;
-range 9 4;;
+assert(range 4 9 = [4;5;6;7;8;9]);;
+assert(range 9 4 = [9;8;7;6;5;4]);;
 
+let rand_select l k =
+  if k > List.length l then raise (Failure "Cannot select more than list length") else
+    let rec drop l c k a =
+      match l with
+        | [] -> a
+        | h :: t -> if c = k then drop t (c+1) k a else drop t (c+1) k (h :: a)
+    in
+    let rec aux l c a =
+      match l with
+        | [] -> a
+        | _ -> if c = k then a else
+              let random_index = Random.int (List.length l) in
+                aux (drop l 0 random_index []) (c+1) ((List.nth l random_index) :: a)
+    in
+      aux l 0 [];;
 
+rand_select [1;2;3;4;5;6] 3;;
 
+let lotto_select k max =
+  let rec make_list c a =
+    if c = max then  c :: a else make_list (c+1) ((c+1) :: a)
+  in
+  let li = make_list 0 [] in
+    rand_select li k;;
 
+assert(List.length (lotto_select 6 49) = 6);;
 
+let permutation l =
+  let rec drop l c k a =
+    match l with
+      | [] -> a
+      | h :: t -> if c = k then drop t (c+1) k a else drop t (c+1) k (h :: a)
+  in
+  let rec aux l a =
+    match l with
+      | [] -> a
+      | _ -> let random_index = Random.int (List.length l) in
+            aux (drop l 0 random_index []) ((List.nth l random_index) :: a)
+  in
+    aux l [];;
 
+permutation ["a"; "b"; "c"; "d"; "e"];;
 
+let a = [2;3;1;4];;
+let b = [3;2;4;1];;
+let mys l = List.sort (fun x y -> x - y) l;;
+mys a = mys b ;;
 
