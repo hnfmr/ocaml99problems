@@ -331,8 +331,22 @@ let permutation l =
 
 permutation ["a"; "b"; "c"; "d"; "e"];;
 
-let a = [2;3;1;4];;
-let b = [3;2;4;1];;
-let mys l = List.sort (fun x y -> x - y) l;;
-mys a = mys b ;;
+let rec extract k list =
+  if k > List.length list then [] else
+    let rec listify l a =
+      match l with
+        | [] -> a
+        | h :: t -> listify t ([h] :: a)
+    in
+    let rec merge x l a =
+      match l with
+        | [] -> a
+        | h :: t -> merge x t ((x :: h) :: a)
+    in
+      match list with
+        | [] -> []
+        | h :: t ->
+            if k = 1 then (listify list []) else (merge h (extract (k-1) t) []) @ (extract k t);;
 
+
+extract 2 ["a"; "b"; "c"; "d"; "e"];;
