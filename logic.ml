@@ -23,27 +23,137 @@ let table2 a b expr =
 
 table2 "a" "b" e;;
 
-let evaln be_list expr =
-  let rec gen_list a =
-    match be_list with
+let rec pow x n =
+  if n = 0 then 1 else x * pow x (n-1);;
+
+let repeat l =
+  let m = pow 2 (List.length l) in
+  let rec aux k a =
+    match k with
+      | 0 -> a
+      | _ -> aux (k-1) (l :: a)
+  in
+    aux m [];;
+
+repeat ["a"; "b"; "c"];;
+
+let boolean_nest l =
+  let rec nest_true l a =
+    match l with
       | [] -> a
-      | 
-let rec bool_of_var l x =
+      | h :: t -> nest_true t ((h @ [true]) :: a)
+  in
+  let rec nest_false l a =
+    match l with
+      | [] -> a
+      | h :: t -> nest_false t ((h @ [false]) :: a)
+  in
+  let nested_true = nest_true l [] in
+  let nested_false = nest_false l [] in
+    nested_true @ nested_false;;
+
+let rec boolean_table n =
+  match n with
+    | 0 -> []
+    | 1 -> [ [true]; [false] ]
+    | k -> boolean_nest (boolean_table (k-1));;
+
+boolean_table 3;;
+
+let rec zip al bl =
+  match al, bl with
+    | [], bl -> []
+    | al, [] -> []
+    | a :: at, b :: bt -> (a, b) :: zip at bt;;
+
+zip ["a"; "b"; "c"] [1;2;3];;
+
+let rec merge al bl =
+  match al, bl with
+    | [], _ -> []
+    | _, [] -> []
+    | a :: at, b :: bt -> [zip a b] @ merge at bt;;
+
+let evaln be_list expr =
+  let rec bool_of_var h x =
+    match h with
+      | [] -> failwith "not found"
+      | (a, b) :: t -> if a = x then b else bool_of_var t x
+  in
+  let rec eval expr =
+    match expr with
+      | Var x -> let b_of_x = bool_of_var be_list x in b_of_x
+      | Not e -> not (eval e)
+      | And (e1, e2) -> eval e1 && eval e2
+      | Or (e1, e2) -> eval e1 || eval e2
+  in
+    eval expr;;
+
+let a = Var "a" and b = Var "b" and c = Var "c" in
+  evaln [("a", true); ("b", false); ("c", false)] (Or(And(a, Or(b,c)), Or(And(a,b), And(a,c))));;
+
+let rec table l expr =
   match l with
-    | [] -> failwith "not found"
-    | (a, b) :: t -> if a = x then b else bool_of_var t x
-in
-let rec eval expr =
-  match expr with
-    | Var x -> let b_of_x = bool_of_var be_list x in b_of_x
-    | Not e -> not (eval e)
-    | And (e1, e2) -> eval e1 && eval e2
-    | Or (e1, e2) -> eval e1 || eval e2
-in
-  aux expr;;
+    | [] -> []
+    | h :: t -> (h, evaln h expr) :: table t expr;;
 
-let table3 be_list expr =
+let l = merge (repeat ["a"; "b"; "c"]) (boolean_table 3) in
+let a = Var "a" and b = Var "b" and c = Var "c" in
+  table l (Or(And(a, Or(b,c)), Or(And(a,b), And(a,c))));;
 
 
-  let a = Var "a" and b = Var "b" and c = Var "c" in
-    evaln [("a", true); ("b", false); ("c", false)] (Or(And(a, Or(b,c)), Or(And(a,b), And(a,c))));
+let grey_code_nest l =
+  let rec nest_one l a =
+    match l with
+      | [] -> a
+      | h :: t -> nest_one t ((h ^ "1") :: a)
+  in
+  let rec nest_zero l a =
+    match l with
+      | [] -> a
+      | h :: t -> nest_zero t ((h ^ "0") :: a)
+  in
+  let nested_one = nest_one l [] in
+  let nested_zero = nest_zero l [] in
+    nested_one @ nested_zero;;
+
+let rec grey_code_table n =
+  match n with
+    | 0 -> []
+    | 1 -> [ "0"; "1" ]
+    | k -> grey_code_nest (grey_code_table (k-1));;
+
+grey_code_table 1;;
+grey_code_table 2;;
+grey_code_table 3;;
+grey_code_table 4;;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
