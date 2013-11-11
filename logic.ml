@@ -129,6 +129,46 @@ grey_code_table 3;;
 grey_code_table 4;;
 
 
+module PrioQueue =
+struct
+  type priority = int
+
+  type 'a queue = Empty | Node of priority * 'a * 'a queue * 'a queue
+
+  let empty = Empty
+
+  let rec insert queue prio elt =
+    match queue with
+      | Empty -> Node(prio, elt, Empty, Empty)
+      | Node(p, e, left, right) ->
+          if prio <= p
+          then Node(prio, elt, insert right p e, left)
+          else Node(p, e, insert right prio elt, left)
+  exception Queue_is_empty
+
+  let rec remove_top = function
+    | Empty -> raise Queue_is_empty
+    | Node(prio, elt, left, Empty) -> left
+    | Node(prio, elt, Empty, right) -> right
+    | Node(prio, elt, (Node(lprio, lelt, _, _) as left),
+           (Node(rprio, relt, _, _) as right)) ->
+        if lprio <= rprio
+        then Node(lprio, lelt, remove_top left, right)
+        else Node(rprio, relt, left, remove_top right)
+
+  let extract = function
+    | Empty -> raise Queue_is_empty
+    | Node(prio, elt, _, _) as queue -> (prio, elt, remove_top queue)
+end;;
+
+open PrioQueue;;
+
+let a = insert empty 10 2;;
+let b = insert a 11 3;;
+let c = insert b 8 4;;
+let d = insert c 6 5;;
+let e = insert d 12 9;;
+let f = extract e;;
 
 
 
@@ -138,22 +178,14 @@ grey_code_table 4;;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
