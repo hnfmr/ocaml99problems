@@ -161,14 +161,51 @@ struct
     | Node(prio, elt, _, _) as queue -> (prio, elt, remove_top queue)
 end;;
 
-open PrioQueue;;
 
-let a = insert empty 10 2;;
-let b = insert a 11 3;;
-let c = insert b 8 4;;
-let d = insert c 6 5;;
-let e = insert d 12 9;;
-let f = extract e;;
+type 'a freq = Fr of 'a * int;;
+type 'a huffman_encoding = Hs of 'a * string;;
+
+let freqs = [Fr('a',45); Fr('b',13); Fr('c',12); Fr('d',16); Fr('e',9); Fr('f',5)];;
+
+let get_prio q = match q with
+  | (p, e, _) -> p;;
+
+let get_queue q = match q with
+  | (_, _, queue) -> queue;;
+
+let huffman fs =
+  let rec aux a f =
+    match f with
+      | [] -> a
+      | Fr(c, f) :: t -> aux (PrioQueue.insert a f c) t
+  in
+  let orig_queue = aux PrioQueue.empty fs in
+  let rec aux2 a q =
+    match q with
+      | PrioQueue.Node(prio, elt, PrioQueue.empty, PrioQueue.empty) ->
+          let n = PrioQueue.extract q in
+          let nprio = get_prio z in
+          let zprio = nprio + prio in
+            PrioQueue.insert a zprio elt
+      | PrioQueue.Node(prio, elt, left, PrioQueue.empty) -> 
+      | PrioQueue.Node(prio, elt, PrioQueue.empty, right) -> 
+      | PrioQueue.Node(prio, elt, left, right) as queue ->
+          let z = PrioQueue.extract queue in
+          let zr = PrioQueue
+
+let q = huffman freqs;;
+
+
+
+
+
+prio (PrioQueue.extract q);;
+let a = get_queue (PrioQueue.extract q);;
+let b = get_queue (PrioQueue.extract a);;
+let c = get_queue (PrioQueue.extract b);;
+let d = get_queue (PrioQueue.extract c);;
+let e = get_queue (PrioQueue.extract d);;
+let f = get_queue (PrioQueue.extract e);;
 
 
 
@@ -178,14 +215,13 @@ let f = extract e;;
 
 
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
