@@ -131,7 +131,7 @@ grey_code_table 4;;
 
 module PrioQueue =
 struct
-  type priority = T
+  type priority = int
 
   type 'a queue = Empty | Node of priority * 'a * 'a queue * 'a queue
 
@@ -141,9 +141,9 @@ struct
     match queue with
       | Empty -> Node(prio, elt, Empty, Empty)
       | Node(p, e, left, right) ->
-          if prio <= p
-          then Node(prio, elt, insert right p e, left)
-          else Node(p, e, insert right prio elt, left)
+          if prio > p
+          then Node(prio, elt, left, insert right p e)
+          else Node(p, e, insert left prio elt, right)
   exception Queue_is_empty
 
   let rec remove_top = function
@@ -152,7 +152,7 @@ struct
     | Node(prio, elt, Empty, right) -> right
     | Node(prio, elt, (Node(lprio, lelt, _, _) as left),
            (Node(rprio, relt, _, _) as right)) ->
-        if lprio <= rprio
+        if lprio > rprio
         then Node(lprio, lelt, remove_top left, right)
         else Node(rprio, relt, left, remove_top right)
 
@@ -161,8 +161,14 @@ struct
     | Node(prio, elt, _, _) as queue -> (prio, elt, remove_top queue)
 end;;
 
-let a =PrioQueue.insert PrioQueue.empty '-' 99;;
+open PrioQueue;;
 
+let a = insert (insert (insert (insert (insert(insert empty 5 'f') 9 'e') 12 'c') 13 'b') 16 'd') 45 'a';;
+let b = insert a 14 '*';;
+let c = insert b 25 '*';;
+let d = insert c 30 '*';;
+let e = insert d 55 '*';;
+let f = insert e 100 '*';;
 
 type 'a freq = Fr of 'a * int;;
 type 'a huffman_encoding = Hs of 'a * string;;
@@ -184,12 +190,9 @@ let huffman fs =
   let orig_queue = aux PrioQueue.empty fs in
   let rec aux2 a q =
     match q with
-      | PrioQueue.Node(prio, elt, PrioQueue.empty, PrioQueue.empty) ->
-          PrioQueue.insert prio elt a
-      | PrioQueue.Node(prio, elt, left, PrioQueue.empty) -> 
-          let queue = get_queue (PrioQueue.extract left) in
-
-      | PrioQueue.Node(prio, elt, PrioQueue.empty, right) -> 
+      | PrioQueue.Node(prio, elt, PrioQueue.empty, PrioQueue.empty) -> a
+      | PrioQueue.Node(prio, elt, left, PrioQueue.empty) -> a
+      | PrioQueue.Node(prio, elt, PrioQueue.empty, right) -> a
       | PrioQueue.Node(prio, elt, (Node(lprio, lelt, _, _) as left), (Node(rprio, relt, _, _) as right)) ->
           let (freq, c) = if lprio < rprio then (lprio, lelt) else (rprio, relt) in
           let new_freq = freq + prio in
