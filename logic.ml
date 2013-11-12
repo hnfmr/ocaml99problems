@@ -131,7 +131,7 @@ grey_code_table 4;;
 
 module PrioQueue =
 struct
-  type priority = int
+  type priority = T
 
   type 'a queue = Empty | Node of priority * 'a * 'a queue * 'a queue
 
@@ -161,6 +161,8 @@ struct
     | Node(prio, elt, _, _) as queue -> (prio, elt, remove_top queue)
 end;;
 
+let a =PrioQueue.insert PrioQueue.empty '-' 99;;
+
 
 type 'a freq = Fr of 'a * int;;
 type 'a huffman_encoding = Hs of 'a * string;;
@@ -183,15 +185,15 @@ let huffman fs =
   let rec aux2 a q =
     match q with
       | PrioQueue.Node(prio, elt, PrioQueue.empty, PrioQueue.empty) ->
-          let n = PrioQueue.extract q in
-          let nprio = get_prio z in
-          let zprio = nprio + prio in
-            PrioQueue.insert a zprio elt
+          PrioQueue.insert prio elt a
       | PrioQueue.Node(prio, elt, left, PrioQueue.empty) -> 
+          let queue = get_queue (PrioQueue.extract left) in
+
       | PrioQueue.Node(prio, elt, PrioQueue.empty, right) -> 
-      | PrioQueue.Node(prio, elt, left, right) as queue ->
-          let z = PrioQueue.extract queue in
-          let zr = PrioQueue
+      | PrioQueue.Node(prio, elt, (Node(lprio, lelt, _, _) as left), (Node(rprio, relt, _, _) as right)) ->
+          let (freq, c) = if lprio < rprio then (lprio, lelt) else (rprio, relt) in
+          let new_freq = freq + prio in
+            PrioQueue.insert a 
 
 let q = huffman freqs;;
 
